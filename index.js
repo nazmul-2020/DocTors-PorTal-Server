@@ -2,6 +2,7 @@ const express = require('express')
 const cors = require('cors');
 require('dotenv').config();
 const { MongoClient, ServerApiVersion } = require('mongodb');
+const { query } = require('express');
 const app = express()
 const port = process.env.PORT || 5000;
 
@@ -18,7 +19,9 @@ async function run() {
     try {
         await client.connect();
         const serviceCollection = client.db("Doctors-Portal").collection("services");
+        const bookingCollection = client.db("Doctors-Portal").collection("bookings");
 
+        // GET method route
         app.get('/service', async (req, res) => {
             const query = {};
             const cursor = serviceCollection.find(query);
@@ -26,6 +29,13 @@ async function run() {
             res.send(services)
         })
 
+        // POST method route
+        app.post('/booking', async (req, res) => {
+            const booking = req.body;
+            const query = { treatment: booking.treatment, date: treatment.date, patient: booking.patient }
+            const result = await bookingCollection.insertOne(booking);
+            res.send(result);
+        })
     }
 
     finally {
