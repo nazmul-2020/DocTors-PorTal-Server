@@ -65,6 +65,13 @@ async function run() {
           * app.delete('/booking/:id) //
          */
 
+        // GET method route
+        app.get('/booking', async (req, res) => {
+            const patient = req.query.patient;
+            const query = { patient: patient };
+            const bookings = await bookingCollection.find(query).toArray();
+            res.send(bookings)
+        })
 
         // POST method route
         app.post('/booking', async (req, res) => {
