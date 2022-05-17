@@ -20,6 +20,7 @@ async function run() {
         await client.connect();
         const serviceCollection = client.db("Doctors-Portal").collection("services");
         const bookingCollection = client.db("Doctors-Portal").collection("bookings");
+        const userCollection = client.db("Doctors-Portal").collection("user");
 
         // GET method route
         app.get('/service', async (req, res) => {
@@ -27,6 +28,19 @@ async function run() {
             const cursor = serviceCollection.find(query);
             const services = await cursor.toArray();
             res.send(services)
+        })
+
+        // PUT method route
+        app.put('/user/:email', async (req, res) => {
+            const email = req.params.email;
+            const user= req.body
+            const filter = { email: email };
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: user
+            };
+            const result = await userCollection.updateOne(filter, updateDoc, options);
+            res.send(result )
         })
 
         // Warning: This is not the proper way to query multiple collection. 
@@ -65,7 +79,7 @@ async function run() {
           * app.delete('/booking/:id) //
          */
 
-        // GET method route
+        // GET method route booking
         app.get('/booking', async (req, res) => {
             const patient = req.query.patient;
             const query = { patient: patient };
