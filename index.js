@@ -21,6 +21,7 @@ function verifyJWT(req, res, next) {
         return res.status(401).send({ message: 'UnAuthorization access' })
     }
     const token = authHeader.split(' ')[1];
+    console.log(token);
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, function (err, decoded) {
         if (err) {
             return res.status(403).send({ message: 'Forbidden access' })
@@ -87,7 +88,7 @@ async function run() {
                 $set: user
             };
             const result = await userCollection.updateOne(filter, updateDoc, options);
-            const token = jwt.sign({ foo: 'bar' }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' });
+            const token = jwt.sign({ email: email }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' });
             res.send({ result, token })
         })
 
@@ -127,19 +128,37 @@ async function run() {
           * app.delete('/booking/:id) //
          */
 
+
         // GET method route booking
-        app.get('/booking', verifyJWT, async (req, res) => {
-            const patient = req.query.patient;
-            const decodedEmail = req.decoded.email;
-            if (patient === decodedEmail) {
-                const query = { patient: patient };
-                const bookings = await bookingCollection.find(query).toArray();
-                return res.send(bookings);
-            }
-            else {
-                return res.status(403).send({ message: 'Forbidden access' })
-            }
-        })
+        // app.get('/booking', verifyJWT, async (req, res) => {
+        //     const patient = req.query.patient;
+        //     const decodedEmail = req.decoded.email;
+        //     if (patient === decodedEmail) {
+        //         const query = { patient: patient };
+        //         const bookings = await bookingCollection.find(query).toArray();
+        //         return res.send(bookings);
+        //     }
+        //     else {
+        //         return res.status(403).send({ message: 'Forbidden access' })
+        //     }
+        // })
+
+
+        app.get('/booking',verifyJWT, async (req, res) => {
+                  const patient = req.query.patient;
+                  const decodedEmail = req.decoded.email;
+                  console.log(patient);
+                  console.log('decodedEmail', decodedEmail);
+                  if (patient === decodedEmail) {
+                    const query = { patient: patient };
+                    const bookings = await bookingCollection.find({}).toArray();
+                    return res.send(bookings);
+                  }
+                  else {
+                    return res.status(403).send({ message: 'forbidden access' });
+                  }
+                })
+
 
         // POST method route
         app.post('/booking', async (req, res) => {
