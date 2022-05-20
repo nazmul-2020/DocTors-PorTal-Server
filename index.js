@@ -21,7 +21,7 @@ function verifyJWT(req, res, next) {
         return res.status(401).send({ message: 'UnAuthorization access' })
     }
     const token = authHeader.split(' ')[1];
-    console.log(token);
+    // console.log(token);
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, function (err, decoded) {
         if (err) {
             return res.status(403).send({ message: 'Forbidden access' })
@@ -42,7 +42,7 @@ async function run() {
         // GET method route
         app.get('/service', async (req, res) => {
             const query = {};
-            const cursor = serviceCollection.find(query);
+            const cursor = serviceCollection.find(query).project({name:1});
             const services = await cursor.toArray();
             res.send(services)
         })
@@ -147,8 +147,8 @@ async function run() {
         app.get('/booking',verifyJWT, async (req, res) => {
                   const patient = req.query.patient;
                   const decodedEmail = req.decoded.email;
-                  console.log(patient);
-                  console.log('decodedEmail', decodedEmail);
+                //   console.log(patient);
+                //   console.log('decodedEmail', decodedEmail);
                   if (patient === decodedEmail) {
                     const query = { patient: patient };
                     const bookings = await bookingCollection.find({}).toArray();
