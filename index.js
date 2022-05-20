@@ -38,11 +38,12 @@ async function run() {
         const serviceCollection = client.db("Doctors-Portal").collection("services");
         const bookingCollection = client.db("Doctors-Portal").collection("bookings");
         const userCollection = client.db("Doctors-Portal").collection("user");
+        const doctorsCollection = client.db("Doctors-Portal").collection("doctors");
 
         // GET method route
         app.get('/service', async (req, res) => {
             const query = {};
-            const cursor = serviceCollection.find(query).project({name:1});
+            const cursor = serviceCollection.find(query).project({ name: 1 });
             const services = await cursor.toArray();
             res.send(services)
         })
@@ -54,9 +55,9 @@ async function run() {
 
         app.get('/admin/:email', async (req, res) => {
             const email = req.params.email;
-            const user = await userCollection.findOne({email:email});
-            const isAdmin=user.role==='admin';
-            res.send({admin:isAdmin});
+            const user = await userCollection.findOne({ email: email });
+            const isAdmin = user.role === 'admin';
+            res.send({ admin: isAdmin });
         })
 
         // PUT method route
@@ -144,20 +145,20 @@ async function run() {
         // })
 
 
-        app.get('/booking',verifyJWT, async (req, res) => {
-                  const patient = req.query.patient;
-                  const decodedEmail = req.decoded.email;
-                //   console.log(patient);
-                //   console.log('decodedEmail', decodedEmail);
-                  if (patient === decodedEmail) {
-                    const query = { patient: patient };
-                    const bookings = await bookingCollection.find({}).toArray();
-                    return res.send(bookings);
-                  }
-                  else {
-                    return res.status(403).send({ message: 'forbidden access' });
-                  }
-                })
+        app.get('/booking', verifyJWT, async (req, res) => {
+            const patient = req.query.patient;
+            const decodedEmail = req.decoded.email;
+            //   console.log(patient);
+            //   console.log('decodedEmail', decodedEmail);
+            if (patient === decodedEmail) {
+                const query = { patient: patient };
+                const bookings = await bookingCollection.find({}).toArray();
+                return res.send(bookings);
+            }
+            else {
+                return res.status(403).send({ message: 'forbidden access' });
+            }
+        })
 
 
         // POST method route
@@ -171,6 +172,13 @@ async function run() {
             const result = await bookingCollection.insertOne(booking);
             res.send({ success: true, result });
         })
+
+        app.post('/doctor', async (req, res) => {
+            const doctor = req.body;
+            const result = await doctorsCollection.insertOne(doctor);
+            res.send(result);
+        })
+
     }
 
     finally {
